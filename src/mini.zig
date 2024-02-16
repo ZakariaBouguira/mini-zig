@@ -14,7 +14,6 @@ pub fn main() !void {
     var file_path: []const u8 = "";
 
     if (args.len < 2) {
-        // Prompt the user for the GitHub repository URL
         try stdout.writeAll("\n\nEnter the zig file to minify: ");
         file_path = try stdin.readUntilDelimiterOrEofAlloc(std.heap.page_allocator, '\n', 1000) orelse {
             std.debug.print("\nFailed to read input.\n", .{});
