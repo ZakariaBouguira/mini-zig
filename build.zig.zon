@@ -1,0 +1,8 @@
+.{
+    .name = "mini-zig",
+    .version = "0.1.0",
+    .dependencies = .{},
+    .paths = .{
+        "",
+    },
+}
