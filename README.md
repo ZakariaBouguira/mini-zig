@@ -40,7 +40,7 @@ zig run mini.zig -- [path_to_zig_file]
 To keep documentation comments, use the `-keep-doc` flag:
 
 ```bash
-zig run mini-zig.zig -- [path_to_zig_file] -keep-doc
+zig run mini.zig -- [path_to_zig_file] -keep-doc
 ```
 
 Replace `[path_to_zig_file]` with the path to the Zig file you want to minify.
