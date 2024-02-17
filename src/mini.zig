@@ -8,27 +8,38 @@ pub fn main() !void {
     const stdout = std.io.getStdOut().writer();
     const stdin = std.io.getStdIn().reader();
 
-    const args = try std.process.argsAlloc(std.heap.page_allocator);
-    defer std.process.argsFree(std.heap.page_allocator, args);
+    const args = try std.process.argsAlloc(allocator);
+    defer std.process.argsFree(allocator, args);
 
     var file_path: []const u8 = "";
+    var keep_doc_comments = false;
 
     if (args.len < 2) {
-        try stdout.writeAll("\n\nEnter the zig file to minify: ");
-        file_path = try stdin.readUntilDelimiterOrEofAlloc(std.heap.page_allocator, '\n', 1000) orelse {
+        try stdout.writeAll("\nEnter the zig file to minify: ");
+        file_path = try stdin.readUntilDelimiterOrEofAlloc(allocator, '\n', 1000) orelse {
             std.debug.print("\nFailed to read input.\n", .{});
             return;
         };
+        file_path = std.mem.trimRight(u8, file_path, "\n");
     } else {
-        file_path = args[1];
+        for (args[1..]) |arg| {
+            if (std.mem.eql(u8, arg, "-keep-doc")) {
+                keep_doc_comments = true;
+            } else {
+                file_path = arg;
+            }
+        }
     }
 
-    std.debug.print("\nFile path: {s}\n", .{file_path});
+    std.debug.print("\nFile path: {s}, Keep Doc Comments: {}\n", .{ file_path, keep_doc_comments });
 
     const file = try std.fs.cwd().openFile(file_path, .{ .mode = .read_write });
     defer file.close();
 
+    try file.seekTo(0);
+
     var buf_reader = std.io.bufferedReader(file.reader());
+
     var reader = buf_reader.reader();
 
     // Read the file into memory
@@ -41,9 +52,23 @@ pub fn main() !void {
 
     var line_number: u32 = 0;
     while (lines.next()) |line| : (line_number += 1) {
-        if (!std.mem.startsWith(u8, std.mem.trimLeft(u8, line, " \t"), "//")) {
-            try file_content_new.appendSlice(line);
-            try file_content_new.append('\n');
+        const trimmed_line = std.mem.trim(u8, line, " \t");
+        const is_comment = std.mem.startsWith(u8, trimmed_line, "//");
+        const is_doc_comment = std.mem.startsWith(u8, trimmed_line, "///");
+        if (!is_comment or (is_doc_comment and keep_doc_comments)) {
+            if (is_doc_comment and keep_doc_comments) {
+                try file_content_new.appendSlice(trimmed_line);
+                try file_content_new.append('\n');
+            } else {
+                const maybe_comment_pos = std.mem.indexOfAny(u8, trimmed_line, "//");
+                if (maybe_comment_pos) |comment_pos| {
+                    try file_content_new.appendSlice(trimmed_line[0..comment_pos]);
+                    try file_content_new.append('\n');
+                } else {
+                    try file_content_new.appendSlice(trimmed_line);
+                    try file_content_new.append('\n');
+                }
+            }
         }
     }
     try file.seekTo(0);
