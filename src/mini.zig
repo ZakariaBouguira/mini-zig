@@ -57,15 +57,15 @@ pub fn main() !void {
         const is_doc_comment = std.mem.startsWith(u8, trimmed_line, "///");
         if (!is_comment or (is_doc_comment and keep_doc_comments)) {
             if (is_doc_comment and keep_doc_comments) {
-                try file_content_new.appendSlice(trimmed_line);
+                try file_content_new.appendSlice(line);
                 try file_content_new.append('\n');
             } else {
-                const maybe_comment_pos = std.mem.indexOfAny(u8, trimmed_line, "//");
+                const maybe_comment_pos = std.mem.indexOf(u8, line, "//");
                 if (maybe_comment_pos) |comment_pos| {
-                    try file_content_new.appendSlice(trimmed_line[0..comment_pos]);
+                    try file_content_new.appendSlice(line[0..comment_pos]);
                     try file_content_new.append('\n');
                 } else {
-                    try file_content_new.appendSlice(trimmed_line);
+                    try file_content_new.appendSlice(line);
                     try file_content_new.append('\n');
                 }
             }
