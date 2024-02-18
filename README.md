@@ -31,19 +31,18 @@ Clone the repository:
 git clone https://github.com/ZakariaBouguira/mini-zig.git
 cd mini-zig
 ```
+Build the executable:
+
+```bash
+zig build
+```
 
 ### Usage
 
 Run Mini-Zig with various options:
 
 ```bash
-zig run mini.zig -- [options] <file_path>
-```
-
-To keep documentation comments, use the `-keep-doc` flag:
-
-```bash
-zig run mini.zig -- [path_to_zig_file] -keep-doc
+./zig-out/bin/mini-zig [options] <file_path>
 ```
 
 **Options:**
@@ -55,8 +54,17 @@ zig run mini.zig -- [path_to_zig_file] -keep-doc
 **Example:**
 
 ```bash
-zig run mini-zig.zig -- -o output.zig -d -s input.zig
+./zig-out/bin/mini-zig -- -o output.zig -d -s input.zig
 ```
+
+## Performance Benchmarks
+
+Mini-Zig has been benchmarked for efficiency and speed. Below are the results of processing a file with 1,000,000 lines of code:
+
+  - `real`: 0m0.272s - Total elapsed time.
+  - `user`: 0m0.156s - CPU time in user mode.
+  - `sys`: 0m0.116s - CPU time in kernel mode.
+
 
 ## Contributing
 

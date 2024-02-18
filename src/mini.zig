@@ -129,7 +129,7 @@ fn minify(allocator: *std.mem.Allocator, file_path: []const u8, options: Options
     const file_content = try reader.readAllAlloc(allocator.*, file_size);
     defer allocator.free(file_content);
 
-    var lines = std.mem.tokenizeScalar(u8, file_content, '\n');
+    var lines = std.mem.tokenize(u8, file_content, "\n");
     var file_content_minified = std.ArrayList(u8).init(allocator.*);
     defer file_content_minified.deinit();
 
@@ -137,18 +137,22 @@ fn minify(allocator: *std.mem.Allocator, file_path: []const u8, options: Options
         const trimmed_line = std.mem.trim(u8, line, " \t");
         const is_comment = std.mem.startsWith(u8, trimmed_line, "//");
         const is_doc_comment = std.mem.startsWith(u8, trimmed_line, "///");
-        const line_to_write = if (options.trim_spaces) trimmed_line else line;
+        //const line_to_write = if (options.trim_spaces) trimmed_line else line;
         if (!is_comment or (is_doc_comment and options.keep_doc_comments)) {
-            try file_content_minified.appendSlice(line_to_write);
-        } else {
-            const maybe_comment_pos = std.mem.indexOf(u8, line_to_write, "//");
-            if (maybe_comment_pos) |comment_pos| {
-                try file_content_minified.appendSlice(line_to_write[0..comment_pos]);
+            if (is_doc_comment and options.keep_doc_comments) {
+                try file_content_minified.appendSlice(line);
+                try file_content_minified.append('\n');
             } else {
-                try file_content_minified.appendSlice(line_to_write);
+                const maybe_comment_pos = std.mem.indexOf(u8, line, "//");
+                if (maybe_comment_pos) |comment_pos| {
+                    try file_content_minified.appendSlice(line[0..comment_pos]);
+                    try file_content_minified.append('\n');
+                } else {
+                    try file_content_minified.appendSlice(line);
+                    try file_content_minified.append('\n');
+                }
             }
         }
-        try file_content_minified.append('\n');
     }
     const file_content_minified_str = file_content_minified.items;
     if (options.output) |output| {
@@ -168,9 +172,10 @@ fn minify(allocator: *std.mem.Allocator, file_path: []const u8, options: Options
 }
 
 pub fn main() !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    defer std.debug.assert(gpa.deinit() == .ok);
-    var allocator = gpa.allocator();
+    const startTime = std.time.milliTimestamp();
+    var arena_allocator = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arena_allocator.deinit();
+    var allocator = arena_allocator.allocator();
 
     var cli = try Cli.init(&allocator);
     defer cli.deinit();
@@ -182,4 +187,6 @@ pub fn main() !void {
 
     const file_path = cli.file_path.?;
     _ = try minify(&allocator, file_path, options);
+    const endTime = std.time.milliTimestamp();
+    std.debug.print("Time taken: {} ms\n", .{endTime - startTime});
 }
