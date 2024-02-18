@@ -54,7 +54,7 @@ Run Mini-Zig with various options:
 **Example:**
 
 ```bash
-./zig-out/bin/mini-zig -- -o output.zig -d -s input.zig
+./zig-out/bin/mini-zig -o output.zig -d -s input.zig
 ```
 
 ## Performance Benchmarks
