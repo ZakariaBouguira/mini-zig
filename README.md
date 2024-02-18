@@ -2,16 +2,19 @@
 # Mini-Zig
 
 Mini-Zig is a Zig language utility designed to minify Zig source files by removing commented lines. It's a simple yet effective tool for developers looking to clean up their Zig code by stripping out unnecessary comments.
-With the recent update, it now provides an option to keep documentation comments (`///`) in the file, offering more flexibility in how you clean up your code.
+It also provides options for keeping documentation comments and trimming spaces, offering a customizable approach to streamline your Zig code.
+
 
 
 ## Features
 
-- **Remove Comments**: Mini-Zig efficiently removes both full-line comments (starting with //) and inline comments (comments that appear on the same line after code).
-- **Keep Documentation Comments**: You can choose to retain documentation comments (///) in the source files with the -keep-doc flag.
-- **Whitespace Handling**: Capable of handling files with leading whitespace before comments.
-- **CLI Interface**: Easy-to-use command-line interface.
-- **In-memory Processing**: Processes files entirely in memory for quick execution.
+- **Remove Full-Line and Inline Comments**: Mini-Zig removes both full-line comments (starting with `//`) and inline comments (comments that appear on the same line after code).
+- **Keep Documentation Comments**: Option to retain documentation comments (`///`) in the source files.
+- **Trim Spaces**: Ability to trim leading and trailing spaces from each line in the source file for a cleaner look.
+- **Flexible Output Options**: Choose to overwrite the input file or specify a different output file.
+- **Command-Line Interface**: Enhanced command-line interface with options for different minification needs.
+- **In-memory Processing**: Efficient in-memory processing for quick execution.
+
 
 
 ## Getting Started
@@ -31,10 +34,10 @@ cd mini-zig
 
 ### Usage
 
-To minify a Zig file, run:
+Run Mini-Zig with various options:
 
 ```bash
-zig run mini.zig -- [path_to_zig_file]
+zig run mini.zig -- [options] <file_path>
 ```
 
 To keep documentation comments, use the `-keep-doc` flag:
@@ -43,7 +46,17 @@ To keep documentation comments, use the `-keep-doc` flag:
 zig run mini.zig -- [path_to_zig_file] -keep-doc
 ```
 
-Replace `[path_to_zig_file]` with the path to the Zig file you want to minify.
+**Options:**
+- `-h`, `--help`: Print the help message.
+- `-o`, `--output <file>`: Specify the output file (default is to overwrite the input file).
+- `-d`, `--doc`: Keep documentation comments.
+- `-s`, `--spaces`: Trim spaces.
+
+**Example:**
+
+```bash
+zig run mini-zig.zig -- -o output.zig -d -s input.zig
+```
 
 ## Contributing
 
